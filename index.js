@@ -32,7 +32,7 @@ bot.message(function (message) {
 	}
 	
 	// unacceptable
-	if (/^unacceptable/i.test(rawMessage)) {
+	if (/unacceptable/i.test(rawMessage)) {
 		postImage(message.channel, 'https://media.giphy.com/media/3eKdC7REvgOt2/giphy.gif');
 	}
 	
