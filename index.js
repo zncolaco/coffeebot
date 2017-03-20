@@ -35,6 +35,11 @@ bot.message(function (message) {
 	if (/unacceptable/i.test(rawMessage)) {
 		postImage(message.channel, 'https://media.giphy.com/media/3eKdC7REvgOt2/giphy.gif');
 	}
+
+	// acceptable pronounciation
+	if (/tomato/i.test(rawMessage)) {
+		postMessage(message.channel, "Tom-ah-to");
+	}
 	
 });
 
