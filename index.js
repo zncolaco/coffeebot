@@ -39,6 +39,10 @@ bot.message(function (message) {
 	// unbelievable
 	if (/unbelievable|unbohlievable/i.test(rawMessage)) {
 		postImage(message.channel, 'https://s28.postimg.org/dob9qbnkd/4zy4k_XH.gif');
+    
+	// acceptable pronounciation
+	if (/tomato/i.test(rawMessage)) {
+		postMessage(message.channel, "Tom-ah-to");
 	}
 	
 });
