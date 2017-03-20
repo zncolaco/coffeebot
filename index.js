@@ -35,6 +35,11 @@ bot.message(function (message) {
 	if (/unacceptable/i.test(rawMessage)) {
 		postImage(message.channel, 'https://media.giphy.com/media/3eKdC7REvgOt2/giphy.gif');
 	}
+
+	// unbelievable
+	if (/unbelievable|unbohlievable/i.test(rawMessage)) {
+		postImage(message.channel, 'https://s28.postimg.org/dob9qbnkd/4zy4k_XH.gif');
+	}
 	
 });
 
