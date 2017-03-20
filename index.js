@@ -2,6 +2,7 @@
 
 var slack = require('slack');
 var express = require('express');
+var request = require('request')
 var app = express();
 
 let bot = slack.rtm.client();
@@ -45,11 +46,30 @@ bot.message(function (message) {
 	if (/tomato/i.test(rawMessage)) {
 		postMessage(message.channel, "Tom-ah-to");
 	}
-	
+
 	// adele
-	if (/adele|Adele/i.test(rawMessage) {
+	if (/adele/i.test(rawMessage)) {
 		postImage(message.channel, 'https://media.giphy.com/media/znnVZx8GMzs5O/giphy.gif');	
-	}	
+	}
+
+	// wiki
+	if (/tell me about (.*)/i.test(rawMessage)) {
+		var query = /^tell me about (.*)$/i.exec(rawMessage);
+		var wikiQuery = 'https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&exintro=&redirects=1&explaintext=&titles=' + query[1];
+
+		request(wikiQuery, function (error, response, body) {
+			var pages = JSON.parse(response.body).query.pages;
+			// Do we ever get more than one page? Who knows.
+			for (var page in pages) {
+				if (pages[page].extract) {
+					postMessage(message.channel, 'https://en.wikipedia.org/wiki/' + pages[page].title.replace(/ /gi, '_'));
+				} else {
+					postMessage(message.channel, '\'' + query[1] + '\' was a little weird, even for me. :neutral_face:');
+				}
+			}
+		});
+	}
+	
 });
 
 function postImage(channel, imageUrl) {
