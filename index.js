@@ -19,6 +19,10 @@ app.listen(3000, (err) => {
 	bot.listen({token});
 });
 
+bot.hello(message=> {
+    postMessage('random', "I is started :coffee:");
+})
+
 // Events
 bot.message(function (message) {
 	
@@ -55,7 +59,7 @@ bot.message(function (message) {
 	// wiki
 	if (/tell me about (.*)/i.test(rawMessage)) {
 		var query = /^tell me about (.*)$/i.exec(rawMessage);
-		var wikiQuery = 'https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&exintro=&redirects=1&explaintext=&titles=' + query[1];
+		var wikiQuery = 'https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&exintro=&redirects=1&explaintext=&titles=' + encodeURI(query[1]);
 
 		request(wikiQuery, function (error, response, body) {
 			var pages = JSON.parse(response.body).query.pages;
