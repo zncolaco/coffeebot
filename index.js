@@ -73,6 +73,11 @@ bot.message(function (message) {
 			}
 		});
 	}
+
+	// 160 office temp
+	if(/temperature/i.test(rawMessage(rawMessage)) {
+		postMessage(message.channel, "The current temperature in the chromosquad area is: " + findOfficeTemp() + " degrees celsius");
+	}
 	
 });
 
@@ -101,5 +106,18 @@ function postMessage(channel, message) {
 		text: message
 	}, function (err, data) {
 		if (err) console.log(err);
+	})
+}
+
+function findOfficeTemp() {
+	var url = "http://api.openweathermap.org/data/2.5/weather?id=2028462&appid=99e181359ede6ff1a9ae5be46afb0384&units=metric"
+
+	request({
+	    url: url,
+	    json: true
+	}, function (error, response, body) {
+	    if (!error && response.statusCode === 200) {
+	    	return body.main.temp;
+	    }
 	})
 }
