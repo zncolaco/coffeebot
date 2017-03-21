@@ -75,7 +75,7 @@ bot.message(function (message) {
 	}
 
 	// 160 office temp
-	if(/temperature/i.test(rawMessage(rawMessage)) {
+	if(/temperature/i.test(rawMessage(rawMessage))) {
 		postMessage(message.channel, "The current temperature in the chromosquad area is: " + findOfficeTemp() + " degrees celsius");
 	}
 	
