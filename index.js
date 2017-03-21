@@ -92,6 +92,13 @@ bot.message(function (message) {
 	if (/help|halp/i.test(rawMessage)) {
 		postMessageAndImage(message.channel, 'Sending help! Please stand by.', 'https://media.tenor.co/images/3b371a985e414985dfe2626fb326c989/raw');	
 	}
+
+	// much doge
+	if (/(such|much)\s([^\s]*)/i.test(rawMessage)) {
+
+		var suchPhrase = /((?:such|much)\s(?:[^\s]*))/i.exec(rawMessage);
+		postMessageAs(message.channel, '"' + suchPhrase[1] + '"', 'doge', 'https://ih0.redbubble.net/image.28632195.0283/flat,800x800,070,f.jpg');	
+	}
 	
 });
 
@@ -120,6 +127,18 @@ function postMessage(channel, message) {
 	slack.chat.postMessage({
 		token: token,
 		as_user: true,
+		channel: channel,
+		text: message
+	}, function (err, data) {
+		if (err) console.log(err);
+	})
+}
+
+function postMessageAs(channel, message, username, userIconUrl) {
+	slack.chat.postMessage({
+		token: token,
+		username: username,
+		icon_url: userIconUrl,
 		channel: channel,
 		text: message
 	}, function (err, data) {
