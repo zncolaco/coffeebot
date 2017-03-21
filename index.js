@@ -87,15 +87,20 @@ bot.message(function (message) {
 		    }
 		})
 	}
+
+	// halp me
+	if (/help|halp/i.test(rawMessage)) {
+		postMessageAndImage(message.channel, 'Sending help! Please stand by.', 'https://media.tenor.co/images/3b371a985e414985dfe2626fb326c989/raw');	
+	}
 	
 });
 
-function postImage(channel, imageUrl) {
+function postMessageAndImage(channel, message, imageUrl) {
 	slack.chat.postMessage({
 		token: token,
 		as_user: true,
 		channel: channel,
-		text: '',
+		text: message,
 		attachments: [
 			{
 				text: '',
@@ -105,6 +110,10 @@ function postImage(channel, imageUrl) {
 	}, function (err, data) {
 		if (err) console.log(err);
 	})
+}
+
+function postImage(channel, imageUrl) {
+	postMessageAndImage(channel, '', imageUrl);
 }
 
 function postMessage(channel, message) {
