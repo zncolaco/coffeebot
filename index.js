@@ -83,7 +83,26 @@ bot.message(function (message) {
 		    json: true
 		}, function (error, response, body) {
 		    if (!error && response.statusCode === 200) {
-		    	postMessage(message.channel, "The current temperature in the chromosquad area is: " + body.temp + " degrees celsius");
+				var img;
+				var currentTemp = parseFloat(body.temp);
+
+				if(currentTemp > 24.0) {
+					img = "https://cloud.githubusercontent.com/assets/26482831/24185681/580609f8-0f39-11e7-845d-36aaf6d52522.gif";
+				} else if(currentTemp > 22.0) {
+					img = "https://cloud.githubusercontent.com/assets/26482831/24185682/5807c824-0f39-11e7-8530-2d3df52dd31b.gif";
+				} else if(currentTemp > 21.0) {
+					img = "https://cloud.githubusercontent.com/assets/26482831/24185679/57f9c242-0f39-11e7-8bcd-fcd969e14c04.gif";
+				} else if(currentTemp > 20.0) {
+					img = "https://cloud.githubusercontent.com/assets/26482831/24185683/58084fd8-0f39-11e7-9667-c0d60dcf4dc5.gif";
+				} else if(currentTemp <= 20.0) {
+					img = "https://cloud.githubusercontent.com/assets/26482831/24185680/57fe10ea-0f39-11e7-9d85-79a1d9d7cd26.gif";
+				}
+
+				if(currentTemp == 655.36) {
+					img = "http://sunwindsolar.com/wp-content/uploads/2013/01/heat.jpg";
+				}
+
+				postMessageAndImage(message.channel, "The current temperature in the chromosquad area is: " + body.temp + " degrees celsius", img);
 		    }
 		})
 	}
