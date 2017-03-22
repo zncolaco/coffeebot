@@ -76,14 +76,14 @@ bot.message(function (message) {
 
 	// 160 office temp
 	if(/temperature/i.test(rawMessage)) {
-		var url = "http://api.openweathermap.org/data/2.5/weather?id=2028462&appid=99e181359ede6ff1a9ae5be46afb0384&units=metric"
+		var url = "http://mqtt-sensors.azurewebsites.net/temp/current"
 
 		request({
 		    url: url,
 		    json: true
 		}, function (error, response, body) {
 		    if (!error && response.statusCode === 200) {
-		    	postMessage(message.channel, "The current temperature in the chromosquad area is: " + body.main.temp + " degrees celsius");
+		    	postMessage(message.channel, "The current temperature in the chromosquad area is: " + body.temp + " degrees celsius");
 		    }
 		})
 	}
