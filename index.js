@@ -98,7 +98,7 @@ bot.message(function (message) {
 					img = "https://cloud.githubusercontent.com/assets/26482831/24185680/57fe10ea-0f39-11e7-9d85-79a1d9d7cd26.gif";
 				}
 
-				if(currentTemp == 655.35) {
+				if(currentTemp == 655.35 || currentTemp == 999) {
 					img = "http://sunwindsolar.com/wp-content/uploads/2013/01/heat.jpg";
 				}
 
