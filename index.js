@@ -64,7 +64,7 @@ bot.message(function (message) {
 	}
 
 	// wiki
-	if (/tell me about (.*)/i.test(rawMessage)) {
+	if (/^tell me about (.*)$/i.test(rawMessage)) {
 		var query = /^tell me about (.*)$/i.exec(rawMessage);
 		var wikiQuery = 'https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&exintro=&redirects=1&explaintext=&titles=' + encodeURI(query[1]);
 
