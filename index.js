@@ -194,7 +194,7 @@ bot.message(function (message) {
 		if (topBottom.toLowerCase() == "top" ) sortOrder = "DESC"
 
 		db.serialize(function() {
-			db.all("SELECT name, score FROM karma ORDER BY SCORE " + sortOrder + " LIMIT 5", function(err, rows) {
+			db.all("SELECT name, score FROM karma ORDER BY SCORE " + sortOrder + " LIMIT 10", function(err, rows) {
 				if (err) throw err;
 				var results = ">>> The " + topBottom.toLowerCase() + " things with karma are: \n"
 				for (var i = 0; i < rows.length; i++) {
