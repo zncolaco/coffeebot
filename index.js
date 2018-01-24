@@ -5,6 +5,7 @@ var express = require('express');
 var request = require('request');
 var sqlite3 = require('sqlite3');
 var karma = require('./karma.js');
+var cron = require('cron-scheduler');
 var app = express();
 
 let bot = slack.rtm.client();
@@ -193,6 +194,15 @@ bot.message(function (message) {
 	}
 	
 });
+
+// chrisbot
+cron({
+  timezone: 'Pacific/Auckland',
+  on: '30 16 * * 5',
+  name: 'beertime'
+} , function () {
+  postMessageAs('random', ':beer:++', 'chrisbot', 'http://icons.iconarchive.com/icons/icons8/ios7/128/Sports-Skiing-icon.png');
+})
 
 function postMessageAndImage(channel, message, imageUrl) {
 	slack.chat.postMessage({
