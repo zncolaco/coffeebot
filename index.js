@@ -4,11 +4,12 @@ var slack = require('slack');
 var express = require('express');
 var request = require('request');
 var sqlite3 = require('sqlite3');
+var karma = require('./karma.js');
 var app = express();
 
 let bot = slack.rtm.client();
 let token = process.env.SLACK_TOKEN;
-var db;
+var db = new sqlite3.Database('karma.db');
 
 app.get('/', function (req, res) {
 	res.send('Uber Coffee Bot is up and running!!!');
@@ -19,11 +20,7 @@ app.listen(3000, (err) => {
 
 	console.log('Started ...');
 	bot.listen({token});
-	
-	db = new sqlite3.Database('karma.db');
-	db.serialize(function() {
-		db.run("CREATE TABLE if not exists karma (name TEXT PRIMARY KEY, score INTEGER)");
-	});
+	karma.startup(db);
 });
 
 bot.hello(message=> {
@@ -38,29 +35,33 @@ bot.message(function (message) {
 	
 	var rawMessage = message.text;
 	
-	// hello
-	if (/^h(i)+(\s[\S]*)?$|^h[e]+l[l]+[o]+(\s[\S]*)?$/i.test(rawMessage)) {
-		postImage(message.channel, 'https://media.riffsy.com/images/44aed745f86834ab57d88bc010bb036c/tenor.gif');
+	// hello it me
+	if (/^h(i)+(\s[\S]*)?$|^h[e]+l[l]+[o]+(\s[\S]*)?$|adele/i.test(rawMessage)) {
+    var myArrayOfAdeleGifs = [
+      'https://media.riffsy.com/images/44aed745f86834ab57d88bc010bb036c/tenor.gif',
+      'https://media.giphy.com/media/znnVZx8GMzs5O/giphy.gif'
+    ];
+    var adele = myArrayOfAdeleGifs[Math.floor(Math.random() * myArrayOfAdeleGifs.length)];
+		postImage(message.channel, adele);
+    return;
 	}
 	
 	// unacceptable
 	if (/unacceptable/i.test(rawMessage)) {
 		postImage(message.channel, 'https://media.giphy.com/media/3eKdC7REvgOt2/giphy.gif');
+    return;
 	}
 
 	// unbelievable
 	if (/unbelievable|unbohlievable/i.test(rawMessage)) {
 		postImage(message.channel, 'https://s28.postimg.org/dob9qbnkd/4zy4k_XH.gif');
+    return;
 	}    	
 
 	// acceptable pronounciation
 	if (/tomato/i.test(rawMessage)) {
 		postMessage(message.channel, "Tom-ah-to");
-	}
-
-	// adele
-	if (/adele/i.test(rawMessage)) {
-		postImage(message.channel, 'https://media.giphy.com/media/znnVZx8GMzs5O/giphy.gif');	
+    return;
 	}
 
 	// wiki
@@ -117,17 +118,18 @@ bot.message(function (message) {
 	// halp me
 	if (/help|halp/i.test(rawMessage)) {
 		postMessageAndImage(message.channel, 'Sending help! Please stand by.', 'https://media.tenor.co/images/3b371a985e414985dfe2626fb326c989/raw');	
+    return;
 	}
 
 	// much doge
 	if (/(such|much)\s([^\s]*)/i.test(rawMessage)) {
-
 		var suchPhrase = /((?:such|much)\s(?:[^\s]*))/i.exec(rawMessage);
 		postMessageAs(message.channel, '"' + suchPhrase[1] + '"', 'doge', 'https://ih0.redbubble.net/image.28632195.0283/flat,800x800,070,f.jpg');	
+    return;
 	}
 	
 	// karma
-	if (/(?:[^\s]+|".*")\s?(?:\+[\+]+|-[-]+)/i.test(rawMessage)) {
+	if (/(?:[^\s-+]+|".*")\s?(?:\+[\+]+|-[-]+)/i.test(rawMessage)) {
 		
 		var karmarama = /([^\s\+-]+|".*")\s?(\+[\+]+|-[-]+)/ig.exec(rawMessage);
 		var name = karmarama[1];
@@ -142,48 +144,33 @@ bot.message(function (message) {
 			}
 			return;
 		}
-		
-		db.serialize(function() {
-			// Get the current karma
-			var currentScore = 0;
-			var newScore = 0;
-			db.get("SELECT name, score FROM karma WHERE name = ?", name, function(err, row) {
-				if (row != undefined) {
-					currentScore = row.score;
-				}
-				// Insert or update the new karma value
-				newScore = currentScore + karmaPoints;
-				db.run("INSERT OR REPLACE INTO karma (name, score) VALUES (?,?)", [name, newScore], function(err) {
-					if (err) throw err;
-					postMessage(message.channel, ">_" + name + "'s karma is now " + newScore + "_");
-				});
-			});
-		});
-				
+    
+    karma.setKarma(db, name, karmaPoints).then((newScore) => {
+      postMessage(message.channel, ">_" + name + "'s karma is now " + newScore + "_");
+    }).catch((err) => {
+      postMessage(message.channel, `I failed. Please tell an admin I sent you: ${err}`);
+    });
+		return;
 	}
 	
 	// Reset all the things
 	if (/^coffeebotresetallthekarmaplz$/i.test(rawMessage)) {
-		db.serialize(function() {
-			db.run("DELETE FROM karma; VACUUM", function(err) {
-				if (err) throw err;
-				postMessage(message.channel, ">_All your karma has been reset._");
-			});
-		});
+    karma.nuclearBomb(db).then(() => {
+      postMessage(message.channel, ">_All your karma has been reset._");
+    }).catch(() => {
+      postMessage(message.channel, `I failed. Please tell an admin I sent you: ${err}`);
+    });
+    return;
 	}
 	
 	// Check the score
 	if (/^karma of (.*)$/i.test(rawMessage)) {
 		var query = /^karma of (.*)$/ig.exec(rawMessage);
 		var name = query[1];
-		var score = 0;
-		db.serialize(function() {
-			db.get("SELECT score FROM karma WHERE name = ?", name, function(err, row) {
-				if (err) throw err;
-				if (row) score = row.score;
-				postMessage(message.channel, ">_" + name + " has " + score + " karma._");
-			});
-		});
+    karma.getKarma(db, name).then((score) => {
+      postMessage(message.channel, ">_" + name + " has " + score + " karma._");
+    });
+    return;
 	}
 	
 	// Check the score
@@ -192,17 +179,17 @@ bot.message(function (message) {
 		var topBottom = query[1];
 		var sortOrder = "ASC";
 		if (topBottom.toLowerCase() == "top" ) sortOrder = "DESC"
-
-		db.serialize(function() {
-			db.all("SELECT name, score FROM karma ORDER BY SCORE " + sortOrder + " LIMIT 10", function(err, rows) {
-				if (err) throw err;
-				var results = ">>> The " + topBottom.toLowerCase() + " things with karma are: \n"
-				for (var i = 0; i < rows.length; i++) {
-					results += "\t" + rows[i].score + "\t-\t" + rows[i].name + "\n";
-				}
-				postMessage(message.channel, results);
-			});
-		});
+    
+    karma.getLeaderboard(db, sortOrder).then((rows) => {
+      var results = ">>> The " + topBottom.toLowerCase() + " things with karma are: \n"
+      for (var i = 0; i < rows.length; i++) {
+        results += "\t" + rows[i].score + "\t-\t" + rows[i].name + "\n";
+      }
+      postMessage(message.channel, results);
+    }).catch((err) => {
+      postMessage(message.channel, `I failed. Please tell an admin I sent you: ${err}`);
+    });
+    return;
 	}
 	
 });
