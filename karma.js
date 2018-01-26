@@ -1,13 +1,16 @@
 function startup(db) {
-  db.serialize(function() {
-		db.run("CREATE TABLE if not exists karma (name TEXT PRIMARY KEY, score INTEGER)");
-	});
+  return new Promise((resolve, reject) => {
+    db.run("CREATE TABLE if not exists karma (name TEXT PRIMARY KEY, score INTEGER)", (err) => {
+      if (err) reject(err);
+      resolve();
+    });
+  });
 }
 
 function getKarma(db, name) {
   return new Promise((resolve, reject) => {
     db.get("SELECT score FROM karma WHERE name = ?", name, (err, row) => {
-      if (err) resolve(0);
+      if (err) reject(err);
       if (row && row.score) resolve(row.score);
       resolve(0);
     });

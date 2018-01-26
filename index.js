@@ -11,18 +11,25 @@ var app = express();
 let bot = slack.rtm.client();
 let token = process.env.SLACK_TOKEN;
 var db = new sqlite3.Database('karma.db');
+var server;
+
+function start () {
+  server = app.listen(3000, (err) => {
+    if (err) throw err
+
+    console.log('Started ...');
+    bot.listen({token});
+    karma.startup(db).catch((err) => {
+      postMessage(message.channel, `I failed. Please tell an admin I sent you: ${err}`);
+    });
+  });
+}
+
+start();
 
 app.get('/', function (req, res) {
 	res.send('Uber Coffee Bot is up and running!!!');
 })
- 
-app.listen(3000, (err) => {
-	if (err) throw err
-
-	console.log('Started ...');
-	bot.listen({token});
-	karma.startup(db);
-});
 
 bot.hello(message=> {
     postMessage('random', "I is started :coffee:");
@@ -190,6 +197,14 @@ bot.message(function (message) {
     }).catch((err) => {
       postMessage(message.channel, `I failed. Please tell an admin I sent you: ${err}`);
     });
+    return;
+	}
+  
+  // I can't believe this is necessary
+	if (/^sudo service coffeebot restart$/i.test(rawMessage)) {
+    console.log("Stopping...");
+    server.close();
+    start();
     return;
 	}
 	
