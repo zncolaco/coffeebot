@@ -18,7 +18,7 @@ function getKarma(db, name) {
 }
 
 function setKarma(db, name, increaseBy) {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     
     getKarma(db, name).then((score) => {
       var newScore = score + increaseBy;
@@ -30,6 +30,8 @@ function setKarma(db, name, increaseBy) {
       });
     }).then((newScore) => {
       resolve(newScore);
+    }).catch((err) => {
+      reject(err);
     });
   });
 }
@@ -52,6 +54,15 @@ function nuclearBomb(db) {
   });
 }
 
+function close(db) {
+  return new Promise((resolve, reject) => {
+    db.close((err, row) => {
+      if (err) reject(err);
+      resolve();
+    });
+  });
+}
+
 module.exports = {
-  startup, getKarma, setKarma, getLeaderboard, nuclearBomb
+  startup, getKarma, setKarma, getLeaderboard, nuclearBomb, close
 };

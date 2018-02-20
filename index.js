@@ -10,7 +10,7 @@ var app = express();
 
 let bot = slack.rtm.client();
 let token = process.env.SLACK_TOKEN;
-var db = new sqlite3.Database('karma.db');
+var db;
 var server;
 
 function start () {
@@ -19,10 +19,15 @@ function start () {
 
     console.log('Started ...');
     bot.listen({token});
+    startdb();
     karma.startup(db).catch((err) => {
       postMessage(message.channel, `I failed. Please tell an admin I sent you: ${err}`);
     });
   });
+}
+
+function startdb() {
+  db = new sqlite3.Database('karma.db');
 }
 
 start();
@@ -177,6 +182,8 @@ bot.message(function (message) {
 		var name = query[1];
     karma.getKarma(db, name).then((score) => {
       postMessage(message.channel, ">_" + name + " has " + score + " karma._");
+    }).catch(() => {
+      postMessage(message.channel, `I failed. Please tell an admin I sent you: ${err}`);
     });
     return;
 	}
@@ -201,10 +208,14 @@ bot.message(function (message) {
 	}
   
   // I can't believe this is necessary
-	if (/^sudo service coffeebot restart$/i.test(rawMessage)) {
+	if (/^sudo service karma restart$/i.test(rawMessage)) {
     console.log("Stopping...");
-    server.close();
-    start();
+    karma.close(db).then(() => {
+      startdb();
+      postMessage(message.channel, `Rebooted the karma service. I hope it works now.`);
+    }).catch((err) => {
+      postMessage(message.channel, `I failed. Please tell an admin I sent you: ${err}`);
+    });
     return;
 	}
 	
